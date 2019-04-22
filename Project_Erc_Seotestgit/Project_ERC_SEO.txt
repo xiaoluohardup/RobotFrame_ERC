@@ -1,0 +1,57 @@
+*** Settings ***
+Library           D:/Python27/Lib/site-packages/RequestsLibrary/RequestsKeywords.py
+Library           D:/Python27/Lib/site-packages/requests
+Library           Collections
+Library           HandleList
+Library           Selenium2Library    #Library    String    #Library    OperatingSystem
+Library           D:/Python27/Lib/site-packages/DatabaseLibrary
+Library           D:/Python27/Lib/site-packages/DataDealLibrary
+Library           D:/Python27/Lib/site-packages/SendEmail
+Library           D:/Python27/Lib/site-packages/CreateEmail
+
+*** Variables ***
+${ercpchost}      https://www.easyrentcars.com
+${branch}         feature-lc-0419
+${cpan}           luojunfeng
+${select_name}    feature-lc-0419
+${ercMhost}       https://m.easyrentcars.com
+${GetPHPSESSID}    b5f82de5c0f9e7b8f3696378c3692104
+${addr1}          C:\\Users\\30579\\Desktop\\auto-test\\seo_test.xlsx
+${addr2}          C:\\Users\\30579\\Desktop\\auto-test\\have_robot_url.xlsx
+${addr_urltail_slash}    C:\\Users\\30579\\Desktop\\auto-test\\staticpage_slash.xlsx
+${addr_staticpage_no_seourl}    C:\\Users\\30579\\Desktop\\auto-test\\staticpage_no_seourl.xlsx
+${addr_staticpage_urltail_lang=en}    C:\\Users\\30579\\Desktop\\auto-test\\staticpage_urltail_lang=en.xlsx
+${addr_staticpage_no_change=1}    C:\\Users\\30579\\Desktop\\auto-test\\staticpage_urltail_no_change=1.xlsx
+${addr_staticpage_faq_url}    C:\\Users\\30579\\Desktop\\auto-test\\staticpage_faq_url.xlsx
+${addr_no_hreflang}    C:\\Users\\30579\\Desktop\\auto-test\\nohreflang.xlsx
+${addr_302url}    C:\\Users\\30579\\Desktop\\auto-test\\302url.xlsx
+${addr_staticpage_urltail_lang=jp-fr}    C:\\Users\\30579\\Desktop\\auto-test\\staticpage_urltail_lang=jp-fr.xlsx
+
+*** Test Cases ***
+M_SEO_lang=en
+    #test    #_$env$_=1    #_$pre-release$_=1    #切换预发布环境需要改两处地方---搜索条件和cookie的值
+    ${url}    excel table bycol    ${addr_staticpage_urltail_lang=en}    0    0
+    : FOR    ${loop}    IN RANGE    0    3    1
+    \    continue for loop if    '${loop}' == 'CONTINUE'
+    \    ${Header}    Create Dictionary    user-agent=ERCAndroid/2.3.0/google (Android; Android8.0.0; HWI-AL00; zh) MUID/fR1ZiONPu+QnKSNxoim1KuMKQ9hczhaySH5RgHqKOxZUipMe33Nbb+W5nxKFtT7P ANDROID_ID/NUnLpXlxWLe6Og8fc7fRTUTh1Gi1BUirviyhidwm64A= ADID//649teQJJ+hmgjtYr6QEHHklUGS/qQWDZnASd4CQ1mkHXMvkxqlR9qs0iO8nt0NB    #设置header为M端
+    \    ${Cookie}    Create Dictionary    _branch_=${branch}    _select_name=${select_name}    _$env$_=1; user_action_id=9365648097; _erc_a_code=erca.5cab0528b27dc5.00531850; _randomtest=6; _gcl_au=1.1.552689612.1554711851; _ga=GA1.2.164884346.1554711851; _gid=GA1.2.2039582549.1554711851; rmStore=dmid:8195; from_url=https%253A%252F%252Fwww.easyrentcars.com%252F; _fbp=fb.1.1554711852242.222776534; ftr_ncd=6; cto_lwid=42a64189-cf51-43bd-a710-9e99f4ce91cb; smc_uid=1554712153146807; smc_tag=eyJpZCI6MTQzNywibmFtZSI6ImVhc3lyZW50Y2Fycy5jb20ifQ==; smc_refresh=10229; smct_dyn_Currency=HK$; smc_sesn=1; smct_sources=eyJ1cmwiOnsib3JpZ2luYWxzIjp7fX0sImh0dHAiOnsic21jX2Z1bGxfcmVmZXJyYWxfaWQiOjB9fQ==; smc_not=default; smct_dyn_CurrencyFormat=HKD; citizen_country_code=US; utm_content=undefined; utm_campaign=undefined; site_tag=erc; smct_dyn_TotalChargeValue=499; download_guide_close=1; _ga=GA1.3.164884346.1554711851; _gid=GA1.3.2039582549.1554711851; \ __stripe_mid=ebad4272-a541-4f51-8b77-aea84c7b12eb; zzc_last_pay_order_id=12509067; erc_masapay_fingerprint=m801128553112012_D1963653-7622-0965-1745-8DDAE584C834; smct_dyn_BasketValue=278.33; smc_spv=52; smc_tpv=52; smct_session={"s":1554712154186,"l":1554717129162,"lt":1554717129162,"t":2676,"p":3978}; index-attention-close=1; \ forterToken=002f53e4ad0a45c5a91a1a8d2aa3882c_1554717631285__UDF43_9ck; _language=en; now_currency=NZD; stc115019=env:1554721261%7C20190509110101%7C20190408113201%7C3%7C1045563:20200407110201|uid:1554711852357.1896343132.6747828.115019.1406517991:20200407110201|srchist:1045563%3A1554721261%3A20190509110101:20200407110201|nsc:7:20200407094946|tsa:1554721261675.1625236717.2161412.01658337340230642:20190408113201; smct_session={"s":1554712154186,"l":1554721557417,"lt":1554721556424,"t":7558,"p":7910}
+    \    Create Session    host    ${ercMhost}    ${Header}    cookies=${Cookie}
+    \    ${resp}    get Request    host    ${url[${loop}]}
+    \    log    ${resp.content}
+    \    should be equal as integers    ${resp.status_code}    200    #请求成功
+    \    log    ${url[${loop}]}
+    \    Comment    should contain    ${resp.content}    canonical    #无对应标签，修复后释放
+    \    Comment    ${canonical}    Get_Elements    ${resp.content}    canonical    #无对应标签，修复后释放
+    \    should not contain    ${resp.content}    hreflang
+    \    should not contain    ${resp.content}    x-default
+    \    should not contain    ${resp.content}    hreflang="en
+    \    should not contain    ${resp.content}    hreflang="ja
+    \    should not contain    ${resp.content}    hreflang="fr
+    \    ${delete_lang_enurl}    delete_urltail_lang_en    ${url[${loop}]}
+    \    Comment    Should Be Equal As Strings    ${canonical}    ${ercpchost}${delete_lang_enurl}    #canonical不带/,除了/blog/
+    \    Comment    Should Be Equal As Strings    ${canonical}    ${ercpchost}${delete_lang_enurl}/    #canonical不带/,除了/blog/
+    \    ${description}    Get_DescriptionElements    ${resp.content}
+    \    ${title}    Get_TitleElements    ${resp.content}
+    \    log    ${description}
+    \    log    ${title}
+    \    Should not be Equal As Strings    ${description}    ${title}
